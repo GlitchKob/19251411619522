@@ -9,9 +9,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { key, hwid } = req.body;
+  const { key } = req.body;
 
-  if (!key || !hwid) {
+  if (!key) {
     return res.json({ valid: false });
   }
 
@@ -24,23 +24,6 @@ export default async function handler(req, res) {
     return res.json({ valid: false });
   }
 
-  const row = rows[0];
-
-  if (new Date(row.expires_at) < new Date()) {
-    return res.json({ valid: false });
-  }
-
-  if (!row.hwid) {
-    await pool.query(
-      "UPDATE keys SET hwid = $1 WHERE key = $2",
-      [hwid, key]
-    );
-    return res.json({ valid: true });
-  }
-
-  if (row.hwid !== hwid) {
-    return res.json({ valid: false });
-  }
-
+  // Wir ignorieren HWID und expires_at
   return res.json({ valid: true });
 }
